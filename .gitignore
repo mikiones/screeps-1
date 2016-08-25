@@ -1,0 +1,5 @@
+dist/
+*.sublime*
+.tmp/
+node_modules/
+secret.json
