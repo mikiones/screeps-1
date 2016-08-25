@@ -7,7 +7,7 @@ module.exports =
 			source.moveToSource(creep)		
 		else
 			target = creep.pos.findClosestByPath FIND_STRUCTURES, {
-					filter: (s) -> return s.structureType in [STRUCTURE_SPAWN, STRUCTURE_EXTENSION] and s.energy < s.energyCapacity
+					filter: (s) -> return s.structureType in [STRUCTURE_ROAD, STRUCTURE_WALL] and s.energy < s.energyCapacity
 				}
-			if target and creep.transfer(target, RESOURCE_ENERGY) is ERR_NOT_IN_RANGE
+			if target and creep.repair(target) is ERR_NOT_IN_RANGE
 				creep.moveTo target					

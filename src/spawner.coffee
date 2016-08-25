@@ -1,11 +1,18 @@
+total = 4
 module.exports =
 	
-	spawn: (role, type, body = [WORK, CARRY, MOVE]) ->
+	setMax: (max) -> total = max
 
-		spawn = Game.spawns['Spawn1'].createCreep body, undefined, 
-			{
-				role: role
-				type: type
-			}
-		return true if spawn is OK
+	spawn: (role, type, max, body = [WORK, CARRY, MOVE], location = 'Spawn1') ->
 
+		count = Object.keys(Game.creeps).length 
+		return false if count > total
+
+		count =  Object.keys(creep for creep in Game.creeps when creep.memory.type is type).length 
+		return false if count > max
+
+		spawn = Game.spawns[location].createCreep body, undefined, {
+			role: role
+			type: type
+		}
+		return true if spawn is OK	
