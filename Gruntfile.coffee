@@ -5,9 +5,9 @@ module.exports = (grunt) ->
 
 		screeps: 
 			options:
-				email: 'dbaileychess@gmail.com'
+				email: '<%= secret.username %>'
 				password: '<%= secret.password %>'
-				branch: 'default'
+				branch: '<%= secret.branch %>'
 				ptr: false
 			dist:
 				src: ['dist/*.js']
