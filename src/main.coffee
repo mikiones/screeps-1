@@ -8,7 +8,7 @@ roles =
 	repairer: require('repairer').run
 
 module.exports.loop = ->
-	memory.clear
+	memory.clear()
 
 	spawner.setMax 10
 
