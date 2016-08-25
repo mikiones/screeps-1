@@ -2,8 +2,7 @@ source = require 'source'
 module.exports =
 	
 	run: (creep) ->
-		
-		if source.shouldHarvest(creep)
+		if source.shouldHarvest(creep)			
 			source.moveToSource(creep)		
 		else
 			target = creep.room.controller
