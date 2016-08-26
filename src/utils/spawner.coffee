@@ -1,5 +1,5 @@
 total = 4
-canMake = true
+Memory.canMake = true
 module.exports =
 	
 	setMax: (max) -> total = max
@@ -8,7 +8,7 @@ module.exports =
 
 	spawn: (role, type, max, body = [WORK, CARRY, MOVE], location = 'Spawn1') ->
 
-		return false if not canMake
+		return false if not Memory.canMake
 
 		count = Object.keys(Game.creeps).length 
 		return false if count > total
@@ -22,6 +22,6 @@ module.exports =
 			}
 
 			if spawn is OK
-				canMake = false
+				Memory.canMake = false
 				return true
 		return false

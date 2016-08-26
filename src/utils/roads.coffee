@@ -22,15 +22,19 @@ module.exports = self =
 		for name,creep of Game.creeps		
 			room = creep.room
 			if not room.memory.map
-				self.initialize(room) 
+				self.initialize(room) 				
 			map = room.memory.map
-
-			data = map[creep.pos.x][creep.pos.y]			
-			data.visits++
-			data.lastVisited = Game.time
+			if not creep.memory.lastPos or creep.memory.lastPos.x != creep.pos.x or creep.memory.lastPos.y != creep.pos.y 
+				data = map[creep.pos.x][creep.pos.y]			
+				data.visits++
+				data.lastVisited = Game.time
+			creep.memory.lastPos = {x: creep.pos.x, y: creep.pos.y}
+		
 
 	getOptimalRoadPlacement: (room) ->
 		map = room.memory.map
+		if not map 
+			return
 		maxVisits = 0
 		maxX = 0
 		maxY = 0
@@ -42,7 +46,7 @@ module.exports = self =
 				continue if not data 
 
 				if data.visits > 0 and data.visits > maxVisits 					
-					structure = (_.filter(room.lookAt(x,y), (obj) -> obj.type in ['structure','construction_site']))	
+					structure = (_.filter(room.lookAt(x,y), (obj) -> obj.type in ['structure','construction_Site']))	
 					if (not structure or structure.length == 0)
 						maxVisits = data.visits
 						maxX = x

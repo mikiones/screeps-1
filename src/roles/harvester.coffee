@@ -13,4 +13,4 @@ module.exports =
 			if target and creep.transfer(target, RESOURCE_ENERGY) is ERR_NOT_IN_RANGE
 				creep.moveTo target	
 			else
-				creep.moveTo 23, 10
+				creep.moveTo 32, 40
