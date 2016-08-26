@@ -3,10 +3,11 @@ module.exports = (grunt) ->
 	grunt.initConfig(
 		secret: grunt.file.readJSON('secret.json')
 
-		screeps: 
+		screeps:
 			options:
 				email: '<%= secret.username %>'
 				password: '<%= secret.password %>'
+
 				branch: '<%= secret.branch %>'
 				ptr: false
 			dist:
@@ -22,9 +23,18 @@ module.exports = (grunt) ->
 				src: ['**/*.coffee']
 				dest: 'dist'
 				ext: ".js"
+		copy:
+			files:
+				flatten: true
+				expand: true
+				cwd: 'node_modules/js-priority-queue'
+				src: 'priority-queue.min.js'
+				dest: 'dist'
 	)
 
 	grunt.loadNpmTasks 'grunt-screeps'
 	grunt.loadNpmTasks 'grunt-contrib-coffee'
-	grunt.registerTask 'compileScreeps', ['coffee', 'screeps']
+	grunt.loadNpmTasks 'grunt-contrib-copy'
+	
+	grunt.registerTask 'compileScreeps', ['coffee', 'copy', 'screeps']
 	grunt.registerTask 'default', ['compileScreeps']

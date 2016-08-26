@@ -8,7 +8,7 @@ roles =
 	harvester: require('harvester').run
 	upgrader: require('upgrader').run
 	builder: require('builder').run
-	repairer: require('builder').run
+	repairer: require('repairer').run
 
 module.exports.loop = ->
 
@@ -35,10 +35,10 @@ module.exports.loop = ->
 	memory.clear()
 	spawner.clear()
 
-	spawner.setMax 13
+	spawner.setMax 14
 
-	spawner.spawn 'harvester', 'harverester1', 3, body #[WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
-	spawner.spawn 'upgrader', 'upgrader1', 3 ,body # [WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
+	spawner.spawn 'harvester', 'harverester1', 4, body #[WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
+	spawner.spawn 'upgrader', 'upgrader1', 4 ,body # [WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
 	spawner.spawn 'builder', 'builder1', 4 ,body # [WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
 	spawner.spawn 'repairer', 'repairer1', 2 ,body # [WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
 
