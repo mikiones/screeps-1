@@ -42,7 +42,7 @@ module.exports.loop = ->
 	spawner.spawn 'builder', 'builder1', 4 ,body # [WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
 	spawner.spawn 'repairer', 'repairer1', 2 ,body # [WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
 
-	for name,creep of Game.creeps		
+	for name,creep of Game.creeps			
 		roles[creep.memory.role]?(creep)
 
 	#towerer.run Game.getObjectById '57bcdc0b4cf378880210e747'

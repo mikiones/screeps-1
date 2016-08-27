@@ -1,20 +1,25 @@
 source = require 'source'
 
-queue = require('priority-queue.min')
+queue = require('priorityqueue')
 
 values = {}
-values[STRUCTURE_ROAD] 		= 5
-values[STRUCTURE_WALL] 		= 4
+values[STRUCTURE_WALL] 		= 5
+values[STRUCTURE_ROAD] 		= 4
 values[STRUCTURE_RAMPART] 	= 3
 values[STRUCTURE_EXTENSION] = 2
 values[STRUCTURE_SPAWN]		= 1
 
-repairComparer = (a,b) ->
+repairComparer = (a,b) ->	
 	aV = values[a.structureType]
 	bV = values[b.structureType]
-	if av != bV
+	if aV != bV
 		return aV < bV
-	# todo: handle equal case
+	
+	if a.structureType in [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART]		
+		# this will prioritize the weaker structures
+		#console.log "a #{a.hits} vs b #{b.hits}"
+		return a.hits < b.hits
+
 	return aV < bV
 
 module.exports =
@@ -24,14 +29,16 @@ module.exports =
 		if source.shouldHarvest(creep)
 			source.moveToSource(creep)		
 		else	
-			targets = creep.room.find FIND_MY_STRUCTURES, {
-			 	filter: (s) -> return s.structureType in [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_RAMPART] and s.hits < s.hitsMax
-				}	
+			targets = creep.room.find FIND_STRUCTURES, { filter: (s) -> return (s.structureType in [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_RAMPART, STRUCTURE_WALL] and s.hits < s.hitsMax)}
+				
+			console.log "#{targets.length} found"
+			return if not targets or targets.length == 0
 
-			qTargets = new queue { 
-			 	comparator: repairComparer
-			 	initialValues: targets
-				}
+			qTargets = new queue repairComparer
+		
+			for target in targets
+				qTargets.enq target
+
 
 			target = qTargets.peek()
 			console.log target
