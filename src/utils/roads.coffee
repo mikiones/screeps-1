@@ -46,7 +46,7 @@ module.exports = self =
 				continue if not data 
 
 				if data.visits > 0 and data.visits > maxVisits 					
-					structure = (_.filter(room.lookAt(x,y), (obj) -> obj.type in ['structure','construction_Site']))	
+					structure = (_.filter(room.lookAt(x,y), (obj) -> obj.type in ['structure','constructionSite']))	
 					if (not structure or structure.length == 0)
 						maxVisits = data.visits
 						maxX = x

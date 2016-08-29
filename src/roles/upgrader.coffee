@@ -1,4 +1,5 @@
 source = require 'source'
+repairer = require 'repairer'
 module.exports =
 	
 	run: (creep) ->
@@ -7,4 +8,6 @@ module.exports =
 		else
 			target = creep.room.controller
 			if target and creep.upgradeController(target) is ERR_NOT_IN_RANGE
-				creep.moveTo target		
+				err = creep.moveTo target		
+				if err == ERR_NO_PATH
+					repairer.run creep

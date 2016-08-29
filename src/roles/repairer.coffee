@@ -1,49 +1,98 @@
 source = require 'source'
 
+
 queue = require('priorityqueue')
 
-values = {}
-values[STRUCTURE_WALL] 		= 5
-values[STRUCTURE_ROAD] 		= 4
-values[STRUCTURE_RAMPART] 	= 3
-values[STRUCTURE_EXTENSION] = 2
-values[STRUCTURE_SPAWN]		= 1
+baseprio = {}
+baseprio[STRUCTURE_WALL] 		= 500
+baseprio[STRUCTURE_ROAD] 		= 400
+baseprio[STRUCTURE_RAMPART] 	= 300
+baseprio[STRUCTURE_EXTENSION]	= 200
+baseprio[STRUCTURE_CONTAINER]	= 200
+baseprio[STRUCTURE_SPAWN]		= 100
 
-repairComparer = (a,b) ->	
-	aV = values[a.structureType]
-	bV = values[b.structureType]
-	if aV != bV
-		return aV < bV
+module.exports = self =
 	
-	if a.structureType in [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART]		
-		# this will prioritize the weaker structures
-		#console.log "a #{a.hits} vs b #{b.hits}"
-		return a.hits < b.hits
+	analyze: (room) ->
+		room.memory.repairTick = Game.time
 
-	return aV < bV
+		targets = room.find FIND_STRUCTURES, { 
+			filter: (s) -> return (s.structureType in [STRUCTURE_ROAD, STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_RAMPART, STRUCTURE_CONTAINER] and s.hits < s.hitsMax) or s.structureType is STRUCTURE_WALL and s.hits < 200000
+			}
 
-module.exports =
-	
+		if not targets or targets.length == 0
+			room.memory.repairTargets = null
+			return false
+
+		for target in targets
+			prio = baseprio[target.structureType]
+			switch target.structureType
+				when STRUCTURE_WALL
+					# if targets.hits == 1
+					# 	prio = 100000000000
+					if targets.hits < 5000
+						prio -= 200
+					else if targets.hits < 10000
+						prio -= 100
+					prio += 100.0 * (target.hits / target.hitsMax)
+				when STRUCTURE_ROAD
+					prio += 100.0 * (target.hits / target.hitsMax)
+				when STRUCTURE_RAMPART
+					if target.hits is 1
+						prio = -1000
+					else
+						prio += 100.0 * (target.hits / target.hitsMax)
+				else
+					prio = 100000000000000		
+			target.repairPrio = prio
+
+		targets.sort (a,b) ->	
+			return a.repairPrio - b.repairPrio
+
+		room.memory.repairTargets = targets
+
+
 	run: (creep) ->
 
 		if source.shouldHarvest(creep)
 			source.moveToSource(creep)		
 		else	
-			targets = creep.room.find FIND_STRUCTURES, { filter: (s) -> return (s.structureType in [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_RAMPART, STRUCTURE_WALL] and s.hits < s.hitsMax)}
-				
-			console.log "#{targets.length} found"
-			return if not targets or targets.length == 0
+			if not creep.room.memory.repairTick or creep.room.memory.repairTick != Game.time
+				self.analyze(creep.room)
 
-			qTargets = new queue repairComparer
-		
+			targets = creep.room.memory.repairTargets
+
+			return if not targets or targets.length <= 0
+
+			pos = creep.pos
+
+			myRepair = []
 			for target in targets
-				qTargets.enq target
+				target.myRepairPrio = target.repairPrio * (pos.getRangeTo(target) + 1) / 5 
+				myRepair.push target
 
+			myRepair.sort (a,b) ->	
+				return a.myRepairPrio - b.myRepairPrio
+					
+			target = myRepair[0]
+			console.log "Reparing: #{target}"
 
-			target = qTargets.peek()
-			console.log target
-			#target = creep.pos.findClosestByPath FIND_STRUCTURES, {
-			#		filter: (s) -> return (s.structureType is STRUCTURE_ROAD and s.hits < s.hitsMax) or (s.structureType is STRUCTURE_WALL and s.hits < 2000 and s.hits < s.hitsMax) or (s.structureType is STRUCTURE_RAMPART and s.hits < 20000)
-			#		}
 			if target and creep.repair(target) is ERR_NOT_IN_RANGE
 				creep.moveTo target					
+
+	repair: (creep, target, finishFunc) ->
+		return false if not target 
+
+		if source.shouldHarvest(creep)
+			source.moveToSource(creep)
+		else
+			ret = creep.repair target
+
+			switch ret
+				when OK
+					return true		
+				when ERR_NOT_IN_RANGE
+					creep.moveTo target			
+
+			return false
+						

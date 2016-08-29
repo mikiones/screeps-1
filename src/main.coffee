@@ -1,28 +1,35 @@
 memory = require 'memory'
 spawner = require 'spawner'
 info = require 'info'
-towerer = require('towerer')
-roads = require('roads')
+towerer = require 'towerer'
+roads = require 'roads'
+task = require 'task'
 
 roles =
 	harvester: require('harvester').run
 	upgrader: require('upgrader').run
 	builder: require('builder').run
 	repairer: require('repairer').run
+	defender: require('defender').run
+	healer: require('healer').run
+	transporter: require('transporter').run
 
 module.exports.loop = ->
 
+	# remove any completed tasks
+	task.cleanTasks()
+
 	roads.gatherInfo()
 
-	curRoom = Game.rooms['E26S52']
+	curRoom = Game.rooms['W58N57']
 
-	body = [WORK,MOVE,CARRY]
-	if curRoom.energyCapacityAvailable > 400
-		body = [WORK,WORK,MOVE,MOVE,CARRY,CARRY]
-	if curRoom.energyCapacityAvailable > 500
-		body = [WORK,WORK,WORK,MOVE,MOVE,CARRY,CARRY]
-	if curRoom.energyCapacityAvailable > 600
-		body = [WORK,WORK,WORK,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY]
+	if not Memory.task567
+		Memory.task567 = true
+		newTask = task.createTask()
+		newTask.type = 2 # TASK_REPAIR
+		newTask.id = '57c359b43035d9d34bc9389e'
+		newTask.finishCond = 20000
+		task.pushTask newTask
 
 
 	optimalRoad = roads.getOptimalRoadPlacement curRoom
@@ -31,18 +38,19 @@ module.exports.loop = ->
 		curRoom.createConstructionSite optimalRoad.x, optimalRoad.y, STRUCTURE_ROAD
 
 	info.roomEnergy()
-	info.activeCreep ['harverester1','upgrader1','builder1','repairer1']
+	info.activeCreep ['harvester','upgrader','builder','repairer', 'defender', 'healer', 'transporter']
 	memory.clear()
-	spawner.clear()
+	
+	spawner.setMax 18
 
-	spawner.setMax 14
+	spawner.evaluateSpawn()	
 
-	spawner.spawn 'harvester', 'harverester1', 4, body #[WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
-	spawner.spawn 'upgrader', 'upgrader1', 4 ,body # [WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
-	spawner.spawn 'builder', 'builder1', 4 ,body # [WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
-	spawner.spawn 'repairer', 'repairer1', 2 ,body # [WORK,WORK,WORK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]
+	task.matchTasks Game.creeps
 
-	for name,creep of Game.creeps			
-		roles[creep.memory.role]?(creep)
+	for name,creep of Game.creeps		
+		if creep.memory.activeTask			
+			task.run creep	
+		else
+			roles[creep.memory.role]?(creep)
 
 	#towerer.run Game.getObjectById '57bcdc0b4cf378880210e747'

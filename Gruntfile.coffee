@@ -26,6 +26,16 @@ module.exports = (grunt) ->
 				src: ['**/*.coffee']
 				dest: 'dist'
 				ext: ".js"
+			cson_to_json:
+				options:
+					bare: true
+					sourceMap: false
+				expand: true
+				flatten: true
+				cwd: "src"
+				src: ['**/*.cson']
+				dest: 'dist'
+				ext: ".json"
 		copy:
 			files:
 				flatten: true
@@ -43,4 +53,4 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks 'grunt-contrib-clean'
 	
 	grunt.registerTask 'compileScreeps', ['clean', 'coffee', 'copy', 'screeps']
-	grunt.registerTask 'default', ['compileScreeps']
+	grunt.registerTask 'a', ['compileScreeps']
