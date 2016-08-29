@@ -5,7 +5,7 @@ queue = require 'priorityqueue'
 roles = [
 	{
 		role: "harvester"
-		body: [WORK,WORK,MOVE,CARRY,CARRY] # [WORK,WORK,WORK,MOVE,CARRY,MOVE,CARRY,MOVE]
+		body: [WORK,WORK,WORK,MOVE,CARRY,MOVE,CARRY,MOVE] # [WORK,WORK,WORK,MOVE,CARRY,MOVE,CARRY,MOVE]
 		prio: 1
 		min: 2
 		max: 3
@@ -15,7 +15,7 @@ roles = [
 		body: [WORK,WORK,WORK,MOVE,CARRY,MOVE,CARRY,MOVE]
 		prio: 3
 		min: 1
-		max: 2
+		max: 3
 	}
 	{
 		role: "builder"
@@ -27,7 +27,7 @@ roles = [
 	{
 		role: "repairer"
 		body: [WORK,WORK,WORK,MOVE,CARRY,MOVE,CARRY,MOVE]
-		prio: 4
+		prio: 3
 		min: 1		
 		max: 2
 	}
@@ -76,7 +76,7 @@ module.exports = self =
 		if bestRole and not qTargets.isEmpty()
 			console.log "Trying to spawn #{bestRole.role}"
 		else
-			console.log "Unabled to spawn anything"
+			#console.log "Unabled to spawn anything"
 
 		return		
 

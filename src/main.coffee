@@ -4,12 +4,13 @@ info = require 'info'
 towerer = require 'towerer'
 roads = require 'roads'
 task = require 'task'
+repairer = require 'repairer'
 
 roles =
 	harvester: require('harvester').run
 	upgrader: require('upgrader').run
 	builder: require('builder').run
-	repairer: require('repairer').run
+	repairer: repairer.run
 	defender: require('defender').run
 	healer: require('healer').run
 	transporter: require('transporter').run
@@ -23,14 +24,7 @@ module.exports.loop = ->
 
 	curRoom = Game.rooms['W58N57']
 
-	if not Memory.task567
-		Memory.task567 = true
-		newTask = task.createTask()
-		newTask.type = 2 # TASK_REPAIR
-		newTask.id = '57c359b43035d9d34bc9389e'
-		newTask.finishCond = 20000
-		task.pushTask newTask
-
+	repairer.weakestWall curRoom
 
 	optimalRoad = roads.getOptimalRoadPlacement curRoom
 
@@ -48,7 +42,7 @@ module.exports.loop = ->
 	task.matchTasks Game.creeps
 
 	for name,creep of Game.creeps		
-		if creep.memory.activeTask			
+		if creep.memory.activeTaskID			
 			task.run creep	
 		else
 			roles[creep.memory.role]?(creep)

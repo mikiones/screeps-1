@@ -1,7 +1,5 @@
 source = require 'source'
-
-
-queue = require('priorityqueue')
+task = require 'task'
 
 baseprio = {}
 baseprio[STRUCTURE_WALL] 		= 500
@@ -42,6 +40,8 @@ module.exports = self =
 						prio = -1000
 					else
 						prio += 100.0 * (target.hits / target.hitsMax)
+				when STRUCTURE_CONTAINER
+					prio -= 50
 				else
 					prio = 100000000000000		
 			target.repairPrio = prio
@@ -50,6 +50,32 @@ module.exports = self =
 			return a.repairPrio - b.repairPrio
 
 		room.memory.repairTargets = targets
+
+		#self.weakestWall room
+
+	weakestWall: (room) ->
+		# find all walls that aren't 100%
+		targets = room.find FIND_STRUCTURES, { 
+			filter: (s) -> return s.structureType is STRUCTURE_WALL and s.hits < s.hitsMax
+		}
+
+		# sort by hits
+		targets.sort (a,b) ->
+			return a.hits - b.hits
+
+		# find the weakest one
+		target = targets[0]
+
+		if Memory.weakestWallId and Memory.weakestWallId is target.id
+			return
+		
+		newTask = task.createTask()
+		newTask.type = 2#TASK_REPAIR
+		newTask.targetid = target.id
+		newTask.finishCond = target.hits * 1.34 # double the wall hit points
+		task.pushTask newTask
+		Memory.weakestWallId = target.id
+			
 
 
 	run: (creep) ->

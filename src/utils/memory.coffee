@@ -5,3 +5,7 @@ module.exports =
 			if not Game.creeps[name]
 				delete Memory.creeps[name]
 				console.log 'Clearing non-existing creep memory:', name
+
+	clearConstruction: ->
+		for id,cs of Game.constructionSites
+			cs.remove()

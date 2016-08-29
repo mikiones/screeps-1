@@ -1,7 +1,6 @@
 width = 50
 height = 50
 
-
 module.exports = self =	
 
 	initialize: (room) ->
